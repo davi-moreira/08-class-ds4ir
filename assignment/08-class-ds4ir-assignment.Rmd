@@ -1,0 +1,24 @@
+---
+title: "07-class-ds4ir-assignment"
+author: "seu nome aqui"
+date: "`r format(Sys.time(), '%d-%m-%Y')`"
+output: 
+  html_document:
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Assignment {-}
+
+1. Retorne ao primeiro exercício da aula e reproduza o gráfico de barras com a medida
+`betweenness` por família em ordem decrescente.
+
+2. Reproduza o primeiro exemplo presente neste [link](https://raw.githubusercontent.com/jalapic/rmeetup_examples/master/networkD3_forceNetwork.R). 
+Trata-se de parte do código de uma das referências listadas no material adicional.
+
+3. Produza um documento .html com o resultado de sua análise. No caso do item 2, é suficiente apresentar apenas seu código.
+
+**Observação**: Não se esqueça de colocar seu nome.
