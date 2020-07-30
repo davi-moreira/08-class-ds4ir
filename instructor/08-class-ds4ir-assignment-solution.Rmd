@@ -1,5 +1,5 @@
 ---
-title: "07-class-ds4ir-assignment"
+title: "08-class-ds4ir-assignment"
 author: "seu nome aqui"
 date: "`r format(Sys.time(), '%d-%m-%Y')`"
 output: 
@@ -9,6 +9,12 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(networkD3)
+library(randomNames) 
+library(igraph)
+library(tidyverse)
+library(here)
+
 ```
 
 # Assignment {-}
@@ -16,8 +22,102 @@ knitr::opts_chunk$set(echo = TRUE)
 1. Retorne ao primeiro exercício da aula e reproduza o gráfico de barras com a medida
 `betweenness` por família em ordem decrescente.
 
+- **degree**: atribui uma pontuação de ao contabilizar quantas conexões diretas (entrada ou saída) 
+cada nó possui. Útil para encontrar nós muito conectados.
+
+- **closeness**: pontua cada nó com base em sua 'proximidade' com *todos os outros 
+nós da rede*. Calcula os caminhos mais curtos entre todos os nós e atribui uma pontuação 
+a cada nó com base na soma dos caminhos mais curtos. 
+
+- **betweenness**: mede o número de vezes que *um nó está no caminho mais curto entre 
+outros nós*. Identifica as melhores "pontes" em uma rede para que o caminho de acesso 
+a cada nó seja o mais curto possível.
+
+- **pange rank**: atribui aos nós uma pontuação com base em suas conexões e nas conexões 
+de suas conexões. Leva em consideração a direção e o peso do link. Útil para descobrir 
+nós cuja influência se estende além de suas conexões diretas na rede mais ampla.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+florence <- read_csv(here("data", "florentine.csv")) %>% 
+  column_to_rownames("FAMILY") %>%
+  as.matrix()
+
+set.seed(123)
+florence_ntw <- florence %>% graph.adjacency(mode = "undirected", diag = FALSE, 
+                  add.colnames = NULL,
+                  add.rownames = NULL) 
+
+btw <- betweenness(florence_ntw) 
+
+btw_bd <- tibble(family = names(btw), btw = btw) %>% arrange(desc(btw))
+
+btw_bd %>% mutate(family = factor(family, levels = btw_bd$family)) %>% 
+  ggplot(aes(family, btw)) + geom_bar(stat = "identity") +
+  theme_bw() + 
+  ggtitle("Betweenness") +
+  theme(legend.title = element_blank(),
+        axis.title.x = element_blank(), 
+        axis.title.y = element_blank(),
+                axis.text.x = element_text(angle = 65,
+                                   hjust = 1,
+                                   vjust = 1))
+
+```
+
+
 2. Reproduza o primeiro exemplo presente neste [link](https://raw.githubusercontent.com/jalapic/rmeetup_examples/master/networkD3_forceNetwork.R). 
 Trata-se de parte do código de uma das referências listadas no material adicional.
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+# random name function
+random_name_df  <- function(nl = 100, size = 1000, smpl = 10, seed = 221) {
+  df = data.frame(source = randomNames(size, which.names = 'both', 
+                                       name.order = 'first.last',
+                                       name.sep = ' '), target = ''
+                  )
+  df = df[rep(seq_len(nrow(df)), sample(1:smpl, nrow(df), replace = T)), ]
+  df = df[sample(nrow(df), nl), ]
+  df$target = sample(df$source, nrow(df), replace = T)
+  df = df[df[, 1] != df[, 2],]
+  return(df)
+}
+
+# Basic Graph
+df <- random_name_df(seed = 221)
+g <- graph.data.frame(df, directed = F) # raw graph
+
+## Make a vertices df
+vertices <- data.frame(
+  name = V(g)$name,
+  group = edge.betweenness.community(g)$membership,
+  betweenness = (betweenness(g, directed = F, normalized = T) * 115) + 0.1
+)
+
+# create indices (indexing needs to be JS format)
+df$source.index = match(df$source, vertices$name) - 1
+df$target.index = match(df$target, vertices$name) - 1
+# head(df)
+
+## fn1
+
+# supply a edgelist + nodelist
+forceNetwork(
+  Links = df,
+  Nodes = vertices,
+  Source = 'source.index',
+  Target = 'target.index',
+  NodeID = 'name',
+  Group = 'group',
+  # color nodes by group calculated earlier
+  charge = -50,
+  # node repulsion
+  linkDistance = 20,
+  zoom = T,
+  opacity = 1,
+  fontSize = 24
+)
+
+```
 
 3. Produza um documento .html com o resultado de sua análise. No caso do item 2, é suficiente apresentar apenas seu código.
 
