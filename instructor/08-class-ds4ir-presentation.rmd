@@ -417,7 +417,8 @@ senator <- senator %>%
 
 twitter_following <-  twitter_following %>% left_join(senator, by = c("target" = "source")) 
 
-net_sen <- forceNetwork(Links = twitter_following, Nodes = senator,
+#net_sen <- 
+forceNetwork(Links = twitter_following, Nodes = senator,
                    Source = 'source.index', 
                    Target = 'target.index',
                    NodeID = 'name',
@@ -429,14 +430,18 @@ net_sen <- forceNetwork(Links = twitter_following, Nodes = senator,
                    opacity = 1,
                    fontSize=14)
 
-show(net_sen)
+#show(net_sen)
 ```
 
 
 ## Material adicional
 
-- [Social Network Visualization in R](http://curleylab.psych.columbia.edu/netviz/netviz1.html#/)
 - [Katherine (Katya) Ognyanova](https://kateto.net/)
+- [Static and dynamic network visualization with R](https://kateto.net/network-visualization)
+- [Social Network Visualization in R](http://curleylab.psych.columbia.edu/netviz/netviz1.html#/)
+- [tidygraph](https://www.data-imaginist.com/2017/introducing-tidygraph/)
+- [network-analysis-with-r](https://www.jessesadler.com/post/network-analysis-with-r/)
+- [D3.js](https://d3js.org/)
 
 ## Tarefa da aula
 
